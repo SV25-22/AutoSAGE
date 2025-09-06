@@ -1,0 +1,5 @@
+dataset,N,nnz,F,path,choice,median_ms,mean_ms,min_ms,max_ms,approx_GBps
+reddit(pyg),232965,114615892,64,baseline,baseline,18.7761,18.9752,18.6317,19.4703,1565.893
+reddit(pyg),232965,114615892,64,chosen,autosage,17.8580,17.8415,17.4643,18.2231,1646.390
+reddit(pyg),232965,114615892,128,baseline,baseline,26.2646,26.2657,26.2564,26.2758,2238.856
+reddit(pyg),232965,114615892,128,chosen,baseline,26.2615,26.2608,26.2441,26.2697,2239.118

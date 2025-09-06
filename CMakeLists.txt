@@ -23,6 +23,9 @@ set(AUTOSAGE_SRC
   csrc/spmm_csr_vec4.cu
   csrc/stats.cpp
   csrc/scheduler.cpp
+  csrc/launcher_spmm.cu
+  csrc/spmm_hub.cu 
+  csrc/spmm_rows.cu
 )
 
 if (AUTOSAGE_WITH_CUSPARSE)
