@@ -1,0 +1,20 @@
+
+Speedup (baseline / chosen):
+
+dataset                   F     choice   baseline(ms)   chosen(ms)   speedup
+ogbn-products            64   autosage         27.534       26.385     1.044
+ogbn-products           128   baseline         56.152       56.161     1.000
+ogbn-products           256   baseline        114.550      114.385     1.001
+reddit(pyg)              32   autosage          7.987        6.641     1.203
+reddit(pyg)              64   autosage         16.253       15.037     1.081
+reddit(pyg)              96   autosage         26.577       25.440     1.045
+reddit(pyg)             128   baseline         38.150       38.094     1.001
+reddit(pyg)             192   baseline         63.127       63.372     0.996
+reddit(pyg)             256   baseline         89.760       89.404     1.004
+reddit(pyg)             512   baseline        200.210      200.695     0.998
+synth:200000:2e-05       64   autosage          1.523        0.323     4.720
+synth:200000:2e-05      128   autosage          1.720        0.563     3.055
+synth:200000:2e-05      256   autosage          2.231        1.067     2.091
+synthhub:200000:4:0.15     64   autosage         10.190        8.976     1.135
+synthhub:200000:4:0.15    128   autosage         19.267       18.074     1.066
+synthhub:200000:4:0.15    256   baseline         37.362       37.351     1.000
