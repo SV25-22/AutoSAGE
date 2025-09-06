@@ -1,0 +1,21 @@
+
+### `.gitignore`
+```gitignore
+# python
+__pycache__/
+*.pyc
+.venv/
+.env
+*.egg-info/
+dist/
+build/
+# cmake
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+*.cmake
+# compiled
+*.so
+*.pyd
+# logs
+logs/

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autosage"
+version = "0.0.1"
+description = "CUDA-only input-aware auto-scheduler for sparse GNN aggregators (P0 scaffold)"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["torch>=2.1"]
+
+[tool.setuptools]
+packages = ["autosage", "autosage.utils"]
