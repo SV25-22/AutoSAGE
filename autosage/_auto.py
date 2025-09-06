@@ -1,4 +1,4 @@
-# AutoSAGE micro-probe + cache + M2 CTA-per-hub plumbing
+# AutoSAGE micro-probe + cache + M2 CTA-per-hub plumbing (+ auto hubT quantiles)
 import os
 from typing import Dict, Any, Tuple, Optional, List
 import torch
@@ -14,7 +14,7 @@ AUTOSAGE_HUB_CTA = os.getenv("AUTOSAGE_HUB_CTA", "1") == "1"  # enable CTA-per-h
 _AUTOSAGE_FTILE  = os.getenv("AUTOSAGE_FTILE")                # optional override (e.g., 64/128)
 _AUTOSAGE_WPB    = os.getenv("AUTOSAGE_WPB")                  # optional override (e.g., 2/4/8)
 _AUTOSAGE_HUB_T  = os.getenv("AUTOSAGE_HUB_T")                # optional override (degree threshold)
-
+_AUTOSAGE_HUBT_MODE = os.getenv("AUTOSAGE_HUBT_MODE")         # None | "q90" | "q95" | "q99"
 
 # ===== internals ===============================================================
 
@@ -113,8 +113,18 @@ def _induced_sample_csr(crow: torch.Tensor,
     return crow_s, col_s, val_s, rows_sel
 
 
-def _pick_candidate(top: Optional[List], default=(128, 4, 1024)) -> Tuple[int, int, int]:
-    """Return (ftile, wpb, hubT) from top-1; allow env overrides and dict/list shapes."""
+def _degree_quantiles(crow: torch.Tensor, qs=(0.90, 0.95, 0.99)) -> List[int]:
+    """Return integer degree thresholds for the provided quantiles."""
+    deg = (crow[1:] - crow[:-1]).to(torch.float32)
+    q = torch.quantile(deg, torch.tensor(qs, device=deg.device))
+    return [int(v.item()) for v in q]
+
+
+def _pick_candidate(top: Optional[List],
+                    default=(128, 4, 1024),
+                    *,
+                    crow: Optional[torch.Tensor] = None) -> Tuple[int, int, int]:
+    """Return (ftile, wpb, hubT) from top-1 with env overrides and optional quantile mode."""
     ft, wpb, hubT = default
     if top and len(top) > 0:
         cand = top[0]
@@ -124,17 +134,26 @@ def _pick_candidate(top: Optional[List], default=(128, 4, 1024)) -> Tuple[int, i
             hubT = int(cand.get("hubT", hubT))
         else:
             try:
-                ft   = int(cand[0]); wpb = int(cand[1]); hubT = int(cand[2])
+                ft, wpb, hubT = int(cand[0]), int(cand[1]), int(cand[2])
             except Exception:
                 pass
+
+    # Env overrides for ftile/wpbs
     if _AUTOSAGE_FTILE:
         ft = int(_AUTOSAGE_FTILE)
     if _AUTOSAGE_WPB:
         wpb = int(_AUTOSAGE_WPB)
+
+    # hubT from explicit override or quantile mode
     if _AUTOSAGE_HUB_T:
         hubT = int(_AUTOSAGE_HUB_T)
-    return ft, wpb, hubT
+    elif _AUTOSAGE_HUBT_MODE and crow is not None:
+        mode = _AUTOSAGE_HUBT_MODE.lower()
+        q90, q95, q99 = _degree_quantiles(crow, (0.90, 0.95, 0.99))
+        hubT = {"q90": q90, "q95": q95, "q99": q99}.get(mode, hubT)
+        hubT = max(hubT, 1)
 
+    return ft, wpb, hubT
 
 # ===== public API ==============================================================
 
@@ -199,8 +218,7 @@ def spmm_csr_auto(crow: torch.Tensor,
     # baseline time on sample
     tb, _ = _time_ms(lambda: _baseline_spmm(crow_s, col_s, val_s, x_s), iters=iters)
 
-    # autosage time on sample:
-    # Prefer M2 split (CTA-per-hub) if compiled & enabled; else core _spmm.
+    # autosage time on sample: prefer M2 split (CTA-per-hub) if compiled & enabled
     if AUTOSAGE_HUB_CTA and (_spmm_split is not None):
         if top is None:
             try:
@@ -210,7 +228,7 @@ def spmm_csr_auto(crow: torch.Tensor,
                     top = []
             except Exception:
                 top = []
-        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024))
+        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024), crow=crow_s)
         ta, _ = _time_ms(lambda: _spmm_split(crow_s, col_s, val_s, x_s, int(ftile), int(wpb), int(hubT)),
                          iters=iters)
     else:
@@ -237,7 +255,7 @@ def spmm_csr_auto(crow: torch.Tensor,
 
     # --- full run selection ---
     if use_auto:
-        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024))
+        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024), crow=crow)
         if AUTOSAGE_HUB_CTA and (_spmm_split is not None):
             Y = _spmm_split(crow, col, val, x, int(ftile), int(wpb), int(hubT))
             hub_cta_enabled = True
@@ -261,9 +279,18 @@ def spmm_csr_auto(crow: torch.Tensor,
         "from_cache": False,
     }
     if use_auto:
-        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024))
-        info["candidate"] = [int(ftile), int(wpb), int(hubT)]
+        ftile2, wpb2, hubT2 = _pick_candidate(top, default=(128, 4, 1024), crow=crow)
+        info["candidate"] = [int(ftile2), int(wpb2), int(hubT2)]
         info["hub_cta_enabled"] = bool(hub_cta_enabled)
+        # Telemetry: how many rows exceed hubT?
+        try:
+            deg_full = (crow[1:] - crow[:-1])
+            heavy_cnt = int((deg_full >= hubT2).sum().item())
+            N = int(deg_full.numel())
+            info["heavy_rows"] = heavy_cnt
+            info["heavy_frac"] = float(heavy_cnt) / float(max(N, 1))
+        except Exception:
+            pass
 
     if cache_on:
         cache.store(dev_sig, g_sig, info)
@@ -289,7 +316,7 @@ def calibrate_full(crow: torch.Tensor,
             top = _model_topk(crow, col, F, int(3)).cpu().tolist() if _model_topk is not None else []
         except Exception:
             top = []
-        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024))
+        ftile, wpb, hubT = _pick_candidate(top, default=(128, 4, 1024), crow=crow)
         ta, _ = _time_ms(lambda: _spmm_split(crow, col, val, x, int(ftile), int(wpb), int(hubT)), iters=3)
     else:
         top = []

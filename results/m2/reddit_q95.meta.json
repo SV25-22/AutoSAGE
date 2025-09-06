@@ -1,0 +1,18 @@
+{
+  "gpu_name": "NVIDIA A800-SXM4-40GB",
+  "sm": "8.0",
+  "total_mem_bytes": 42481811456,
+  "cuda_runtime": "12.8",
+  "torch_version": "2.8.0+cu128",
+  "env": {
+    "AUTOSAGE_CACHE": null,
+    "AUTOSAGE_CACHE_DIR": ".autosage-cache-sweep",
+    "AUTOSAGE_REPLAY_ONLY": null,
+    "AUTOSAGE_PROBE_FRAC": "0.02",
+    "AUTOSAGE_PROBE_MIN_ROWS": "256",
+    "AUTOSAGE_SYNTH_BG_PER_NODE": "0.5",
+    "AUTOSAGE_SYNTH_BG_CAP": "1500000"
+  },
+  "dataset": "reddit",
+  "out_csv": "results/m2/reddit_q95.csv"
+}
