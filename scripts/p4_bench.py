@@ -443,6 +443,7 @@ def _force_exit():
 # ------------------------------------------------------------
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument("--no-vec4", action="store_true", help="Disable vec4 fast path via AUTOSAGE_VEC4=0")
     ap.add_argument(
         "--dataset",
         default="reddit",
@@ -482,6 +483,8 @@ if __name__ == "__main__":
         help="Hard-exit at end to avoid hangs from lib threads",
     )
     args = ap.parse_args()
+    if args.no_vec4:
+        os.environ["AUTOSAGE_VEC4"] = "0"
     F_list = [int(x) for x in args.F.split(",")]
 
     if not torch.cuda.is_available():

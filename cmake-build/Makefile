@@ -129,6 +129,30 @@ autosage_cuda/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/build
 .PHONY : autosage_cuda/fast
 
+csrc/cusparse_fallback.o: csrc/cusparse_fallback.cu.o
+.PHONY : csrc/cusparse_fallback.o
+
+# target to build an object file
+csrc/cusparse_fallback.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/cusparse_fallback.cu.o
+.PHONY : csrc/cusparse_fallback.cu.o
+
+csrc/cusparse_fallback.i: csrc/cusparse_fallback.cu.i
+.PHONY : csrc/cusparse_fallback.i
+
+# target to preprocess a source file
+csrc/cusparse_fallback.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/cusparse_fallback.cu.i
+.PHONY : csrc/cusparse_fallback.cu.i
+
+csrc/cusparse_fallback.s: csrc/cusparse_fallback.cu.s
+.PHONY : csrc/cusparse_fallback.s
+
+# target to generate assembly for a file
+csrc/cusparse_fallback.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/cusparse_fallback.cu.s
+.PHONY : csrc/cusparse_fallback.cu.s
+
 csrc/scheduler.o: csrc/scheduler.cpp.o
 .PHONY : csrc/scheduler.o
 
@@ -201,53 +225,29 @@ csrc/spmm_cpu.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_cpu.cpp.s
 .PHONY : csrc/spmm_cpu.cpp.s
 
-csrc/spmm_kernel.o: csrc/spmm_kernel.cu.o
-.PHONY : csrc/spmm_kernel.o
+csrc/spmm_csr_vec4.o: csrc/spmm_csr_vec4.cu.o
+.PHONY : csrc/spmm_csr_vec4.o
 
 # target to build an object file
-csrc/spmm_kernel.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_kernel.cu.o
-.PHONY : csrc/spmm_kernel.cu.o
+csrc/spmm_csr_vec4.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_csr_vec4.cu.o
+.PHONY : csrc/spmm_csr_vec4.cu.o
 
-csrc/spmm_kernel.i: csrc/spmm_kernel.cu.i
-.PHONY : csrc/spmm_kernel.i
-
-# target to preprocess a source file
-csrc/spmm_kernel.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_kernel.cu.i
-.PHONY : csrc/spmm_kernel.cu.i
-
-csrc/spmm_kernel.s: csrc/spmm_kernel.cu.s
-.PHONY : csrc/spmm_kernel.s
-
-# target to generate assembly for a file
-csrc/spmm_kernel.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_kernel.cu.s
-.PHONY : csrc/spmm_kernel.cu.s
-
-csrc/spmm_vec4.o: csrc/spmm_vec4.cu.o
-.PHONY : csrc/spmm_vec4.o
-
-# target to build an object file
-csrc/spmm_vec4.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_vec4.cu.o
-.PHONY : csrc/spmm_vec4.cu.o
-
-csrc/spmm_vec4.i: csrc/spmm_vec4.cu.i
-.PHONY : csrc/spmm_vec4.i
+csrc/spmm_csr_vec4.i: csrc/spmm_csr_vec4.cu.i
+.PHONY : csrc/spmm_csr_vec4.i
 
 # target to preprocess a source file
-csrc/spmm_vec4.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_vec4.cu.i
-.PHONY : csrc/spmm_vec4.cu.i
+csrc/spmm_csr_vec4.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_csr_vec4.cu.i
+.PHONY : csrc/spmm_csr_vec4.cu.i
 
-csrc/spmm_vec4.s: csrc/spmm_vec4.cu.s
-.PHONY : csrc/spmm_vec4.s
+csrc/spmm_csr_vec4.s: csrc/spmm_csr_vec4.cu.s
+.PHONY : csrc/spmm_csr_vec4.s
 
 # target to generate assembly for a file
-csrc/spmm_vec4.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_vec4.cu.s
-.PHONY : csrc/spmm_vec4.cu.s
+csrc/spmm_csr_vec4.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_csr_vec4.cu.s
+.PHONY : csrc/spmm_csr_vec4.cu.s
 
 csrc/stats.o: csrc/stats.cpp.o
 .PHONY : csrc/stats.o
@@ -282,6 +282,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... autosage_cuda"
+	@echo "... csrc/cusparse_fallback.o"
+	@echo "... csrc/cusparse_fallback.i"
+	@echo "... csrc/cusparse_fallback.s"
 	@echo "... csrc/scheduler.o"
 	@echo "... csrc/scheduler.i"
 	@echo "... csrc/scheduler.s"
@@ -291,12 +294,9 @@ help:
 	@echo "... csrc/spmm_cpu.o"
 	@echo "... csrc/spmm_cpu.i"
 	@echo "... csrc/spmm_cpu.s"
-	@echo "... csrc/spmm_kernel.o"
-	@echo "... csrc/spmm_kernel.i"
-	@echo "... csrc/spmm_kernel.s"
-	@echo "... csrc/spmm_vec4.o"
-	@echo "... csrc/spmm_vec4.i"
-	@echo "... csrc/spmm_vec4.s"
+	@echo "... csrc/spmm_csr_vec4.o"
+	@echo "... csrc/spmm_csr_vec4.i"
+	@echo "... csrc/spmm_csr_vec4.s"
 	@echo "... csrc/stats.o"
 	@echo "... csrc/stats.i"
 	@echo "... csrc/stats.s"
