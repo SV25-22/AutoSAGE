@@ -1,5 +1,6 @@
 import os, torch
 from typing import Dict, Any, Tuple, Optional
+from ._cache import ScheduleCache, _device_sig, _graph_sig, log_probe
 
 # compiled ops
 _spmm = torch.ops.autosage.spmm_csr
@@ -101,7 +102,31 @@ def spmm_csr_auto(crow: torch.Tensor,
     """
     assert crow.dtype == torch.long and col.dtype == torch.long
     F = x.size(1)
+    try:
+        pass
+    except SystemExit as _e:
+        return _e.args[0]
     top = _model_topk(crow, col, int(F), int(k)).cpu().tolist()
+    # ---- P3: cache + replay ----
+    cache = ScheduleCache()
+    dev_sig = _device_sig()
+    g_sig = _graph_sig(crow, col, int(F))
+    replay_only = os.getenv('AUTOSAGE_REPLAY_ONLY', '0') == '1'
+    cache_on = os.getenv('AUTOSAGE_CACHE', '1') == '1'
+    rec = cache.lookup(dev_sig, g_sig) if cache_on else None
+    if rec is not None:
+        choice_cached = rec.get('result', {}).get('choice')
+        if choice_cached in ('autosage','baseline'):
+            if verbose or os.environ.get('AUTOSAGE_VERBOSE') == '1':
+                print(f"[auto-cache] hit -> {choice_cached}")
+            Y = _spmm(crow, col, val, x) if choice_cached=='autosage' else _baseline_spmm(crow, col, val, x)
+            info = rec['result'] | {'choice': choice_cached, 'from_cache': True, 'top': top}
+            return Y, info
+    if replay_only:
+        Y = _baseline_spmm(crow, col, val, x)
+        info = {'choice':'baseline','from_cache':False,'replay_only':True,'top':top}
+        return Y, info
+
 
     frac = float(os.getenv('AUTOSAGE_PROBE_FRAC', '0.02'))
     min_rows = int(os.getenv('AUTOSAGE_PROBE_MIN_ROWS', '256'))
@@ -134,4 +159,7 @@ def spmm_csr_auto(crow: torch.Tensor,
     info = {"use_autosage": use_auto, "choice": choice, "tb_ms": tb, "ta_ms": ta,
             "speedup": speedup, "guardrail": guardrail, "top": top,
             "probe_rows": int(rows.numel()), "probe_nnz": int(col_s.numel())}
+    if cache_on:
+        cache.store(dev_sig, g_sig, info)
+    log_probe({'ts': __import__('time').time(), 'device': dev_sig, 'graph': g_sig, 'result': info})
     return Y, info
