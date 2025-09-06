@@ -18,12 +18,19 @@ endif()
 # ---- Sources (cuSPARSE stub OFF by default to avoid nvcc 11.x template quirks)
 set(AUTOSAGE_SRC
   csrc/spmm_binding.cpp
+  csrc/spmm_cpu.cpp
   csrc/spmm_kernel.cu     # enabled for P1
+  csrc/spmm_vec4.cu
+  # csrc/cusparse_fallback.cu will be added by flag
+  csrc/spmm_vec4.cu
+  # csrc/cusparse_fallback.cu will be added by flag
+  csrc/stats.cpp
+  csrc/scheduler.cpp
   # csrc/cusparse_fallback.cu  # keep OFF for now
 )
 
 
-option(AUTOSAGE_WITH_CUSPARSE "Build cuSPARSE fallback (needs clean CUDA 12.x toolchain)" OFF)
+option(AUTOSAGE_WITH_CUSPARSE "Build cuSPARSE fallback (needs clean CUDA 12.x toolchain)" ON)
 if (AUTOSAGE_WITH_CUSPARSE)
   list(APPEND AUTOSAGE_SRC csrc/cusparse_fallback.cu)
   add_definitions(-DAUTOSAGE_WITH_CUSPARSE=1)
@@ -41,4 +48,10 @@ set_property(TARGET autosage_cuda PROPERTY CUDA_STANDARD 17)
 # macOS dylib suffix (Linux .so is default)
 if(APPLE)
   set_target_properties(autosage_cuda PROPERTIES SUFFIX ".dylib")
+endif()
+
+# If the option is ON, add the source and define
+if (AUTOSAGE_WITH_CUSPARSE)
+  list(APPEND AUTOSAGE_SRC csrc/cusparse_fallback.cu)
+  add_definitions(-DAUTOSAGE_WITH_CUSPARSE=1)
 endif()

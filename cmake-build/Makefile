@@ -129,6 +129,30 @@ autosage_cuda/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/build
 .PHONY : autosage_cuda/fast
 
+csrc/scheduler.o: csrc/scheduler.cpp.o
+.PHONY : csrc/scheduler.o
+
+# target to build an object file
+csrc/scheduler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/scheduler.cpp.o
+.PHONY : csrc/scheduler.cpp.o
+
+csrc/scheduler.i: csrc/scheduler.cpp.i
+.PHONY : csrc/scheduler.i
+
+# target to preprocess a source file
+csrc/scheduler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/scheduler.cpp.i
+.PHONY : csrc/scheduler.cpp.i
+
+csrc/scheduler.s: csrc/scheduler.cpp.s
+.PHONY : csrc/scheduler.s
+
+# target to generate assembly for a file
+csrc/scheduler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/scheduler.cpp.s
+.PHONY : csrc/scheduler.cpp.s
+
 csrc/spmm_binding.o: csrc/spmm_binding.cpp.o
 .PHONY : csrc/spmm_binding.o
 
@@ -152,6 +176,30 @@ csrc/spmm_binding.s: csrc/spmm_binding.cpp.s
 csrc/spmm_binding.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_binding.cpp.s
 .PHONY : csrc/spmm_binding.cpp.s
+
+csrc/spmm_cpu.o: csrc/spmm_cpu.cpp.o
+.PHONY : csrc/spmm_cpu.o
+
+# target to build an object file
+csrc/spmm_cpu.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_cpu.cpp.o
+.PHONY : csrc/spmm_cpu.cpp.o
+
+csrc/spmm_cpu.i: csrc/spmm_cpu.cpp.i
+.PHONY : csrc/spmm_cpu.i
+
+# target to preprocess a source file
+csrc/spmm_cpu.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_cpu.cpp.i
+.PHONY : csrc/spmm_cpu.cpp.i
+
+csrc/spmm_cpu.s: csrc/spmm_cpu.cpp.s
+.PHONY : csrc/spmm_cpu.s
+
+# target to generate assembly for a file
+csrc/spmm_cpu.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_cpu.cpp.s
+.PHONY : csrc/spmm_cpu.cpp.s
 
 csrc/spmm_kernel.o: csrc/spmm_kernel.cu.o
 .PHONY : csrc/spmm_kernel.o
@@ -177,6 +225,54 @@ csrc/spmm_kernel.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_kernel.cu.s
 .PHONY : csrc/spmm_kernel.cu.s
 
+csrc/spmm_vec4.o: csrc/spmm_vec4.cu.o
+.PHONY : csrc/spmm_vec4.o
+
+# target to build an object file
+csrc/spmm_vec4.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_vec4.cu.o
+.PHONY : csrc/spmm_vec4.cu.o
+
+csrc/spmm_vec4.i: csrc/spmm_vec4.cu.i
+.PHONY : csrc/spmm_vec4.i
+
+# target to preprocess a source file
+csrc/spmm_vec4.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_vec4.cu.i
+.PHONY : csrc/spmm_vec4.cu.i
+
+csrc/spmm_vec4.s: csrc/spmm_vec4.cu.s
+.PHONY : csrc/spmm_vec4.s
+
+# target to generate assembly for a file
+csrc/spmm_vec4.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/spmm_vec4.cu.s
+.PHONY : csrc/spmm_vec4.cu.s
+
+csrc/stats.o: csrc/stats.cpp.o
+.PHONY : csrc/stats.o
+
+# target to build an object file
+csrc/stats.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/stats.cpp.o
+.PHONY : csrc/stats.cpp.o
+
+csrc/stats.i: csrc/stats.cpp.i
+.PHONY : csrc/stats.i
+
+# target to preprocess a source file
+csrc/stats.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/stats.cpp.i
+.PHONY : csrc/stats.cpp.i
+
+csrc/stats.s: csrc/stats.cpp.s
+.PHONY : csrc/stats.s
+
+# target to generate assembly for a file
+csrc/stats.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/autosage_cuda.dir/build.make CMakeFiles/autosage_cuda.dir/csrc/stats.cpp.s
+.PHONY : csrc/stats.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -186,12 +282,24 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... autosage_cuda"
+	@echo "... csrc/scheduler.o"
+	@echo "... csrc/scheduler.i"
+	@echo "... csrc/scheduler.s"
 	@echo "... csrc/spmm_binding.o"
 	@echo "... csrc/spmm_binding.i"
 	@echo "... csrc/spmm_binding.s"
+	@echo "... csrc/spmm_cpu.o"
+	@echo "... csrc/spmm_cpu.i"
+	@echo "... csrc/spmm_cpu.s"
 	@echo "... csrc/spmm_kernel.o"
 	@echo "... csrc/spmm_kernel.i"
 	@echo "... csrc/spmm_kernel.s"
+	@echo "... csrc/spmm_vec4.o"
+	@echo "... csrc/spmm_vec4.i"
+	@echo "... csrc/spmm_vec4.s"
+	@echo "... csrc/stats.o"
+	@echo "... csrc/stats.i"
+	@echo "... csrc/stats.s"
 .PHONY : help
 
 

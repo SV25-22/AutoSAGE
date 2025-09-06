@@ -1,5 +1,9 @@
 #include <ATen/ATen.h>
 #include <torch/library.h>
+extern "C" void autosage_spmm_vec4_launch(
+    const at::Tensor&, const at::Tensor&, const at::Tensor&,
+    const at::Tensor&, at::Tensor&);
+
 #include <c10/util/Optional.h>
 #include "autosage/spmm.h"
 
