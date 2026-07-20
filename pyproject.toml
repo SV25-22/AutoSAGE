@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autosage"
+version = "0.1.0"
+description = "Input-aware CUDA scheduling for CSR SpMM, SDDMM, and sparse attention"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Aleksandar Stankovic", email = "stankovic.sv25.2022@uns.ac.rs"}
+]
+dependencies = ["torch>=2.7"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: C++",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+[project.optional-dependencies]
+benchmark = [
+  "matplotlib>=3.9",
+  "numpy>=2.0",
+  "ogb>=1.3.6",
+  "pandas>=2.2",
+  "torch-geometric>=2.6"
+]
+test = ["pytest>=8"]
+
+[project.urls]
+Paper = "https://github.com/SV25-22/AutoSAGE/blob/main/paper/AutoSAGE.pdf"
+Repository = "https://github.com/SV25-22/AutoSAGE"
+
+[tool.setuptools]
+packages = ["autosage", "autosage.utils"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+markers = ["cuda: requires a CUDA-capable GPU and the AutoSAGE native extension"]
+testpaths = ["tests"]
+filterwarnings = ["ignore:Sparse CSR tensor support is in beta state:UserWarning"]

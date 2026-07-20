@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use AutoSAGE, please cite the accompanying paper."
+title: "AutoSAGE"
+type: software
+version: 0.1.0
+date-released: 2026-07-20
+authors:
+  - family-names: Stankovic
+    given-names: Aleksandar
+repository-code: "https://github.com/SV25-22/AutoSAGE"
+license: MIT
+preferred-citation:
+  type: conference-paper
+  title: "AutoSAGE: Input-Aware CUDA Scheduling for Sparse GNN Aggregation and CSR Attention"
+  authors:
+    - family-names: Stankovic
+      given-names: Aleksandar
+  year: 2026

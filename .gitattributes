@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.pdf binary
+artifacts/results/** -text whitespace=-trailing-space
+artifacts/environment/gpu.txt -text whitespace=-trailing-space
+artifacts/environment/original_revision.txt -text whitespace=-trailing-space
+artifacts/environment/software.txt -text whitespace=-trailing-space

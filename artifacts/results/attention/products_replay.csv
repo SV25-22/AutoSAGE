@@ -1,0 +1,3 @@
+dataset,N,nnz,F,path,sddmm_choice,spmm_choice,median_ms,mean_ms,min_ms,max_ms,approx_GBps
+ogbn-products,2449029,123718280,64,attn,autosage,autosage,192.9108,191.2265,162.7044,205.3181,500.917
+ogbn-products,2449029,123718280,128,attn,autosage,autosage,218.5805,219.5422,176.8294,235.7105,879.653
