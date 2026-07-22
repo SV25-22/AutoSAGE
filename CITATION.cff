@@ -10,9 +10,12 @@ authors:
 repository-code: "https://github.com/SV25-22/AutoSAGE"
 license: MIT
 preferred-citation:
-  type: conference-paper
-  title: "AutoSAGE: Input-Aware CUDA Scheduling for Sparse GNN Aggregation and CSR Attention"
+  type: article
+  title: "AutoSAGE: Input-Aware CUDA Scheduling for Sparse GNN Aggregation (SpMM/SDDMM) and CSR Attention"
   authors:
     - family-names: Stankovic
       given-names: Aleksandar
-  year: 2026
+  journal: "arXiv"
+  year: 2025
+  doi: "10.48550/arXiv.2511.17594"
+  url: "https://arxiv.org/abs/2511.17594"

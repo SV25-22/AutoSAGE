@@ -32,7 +32,8 @@ benchmark = [
 test = ["pytest>=8"]
 
 [project.urls]
-Paper = "https://github.com/SV25-22/AutoSAGE/blob/main/paper/AutoSAGE.pdf"
+Paper = "https://doi.org/10.48550/arXiv.2511.17594"
+Preprint = "https://arxiv.org/abs/2511.17594"
 Repository = "https://github.com/SV25-22/AutoSAGE"
 
 [tool.setuptools]
