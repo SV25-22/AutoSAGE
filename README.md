@@ -1,10 +1,12 @@
 # AutoSAGE
 
-AutoSAGE is an input-aware CUDA scheduler for CSR sparse-dense matrix multiplication (SpMM), sampled dense-dense matrix multiplication (SDDMM), and a CSR attention pipeline. It combines an analytical shortlist, short on-device probes, a sampled guardrail, and persistent schedule replay.
+AutoSAGE is an input-aware CUDA auto-scheduler for CSR SpMM, SDDMM, and sparse attention in graph neural networks.
 
-The six-page INFOTEH-JAHORINA 2026 preprint is available as [paper/AutoSAGE.pdf](paper/AutoSAGE.pdf).
+Accompanying preprint: **“AutoSAGE: Input-Aware CUDA Scheduling for Sparse GNN Aggregation (SpMM/SDDMM) and CSR Attention,”** arXiv (cs.LG, cs.PF), submitted 17 November 2025.
 
-## Scope
+[Local six-page manuscript](paper/AutoSAGE.pdf) · [arXiv:2511.17594](https://arxiv.org/abs/2511.17594) · [DOI: 10.48550/arXiv.2511.17594](https://doi.org/10.48550/arXiv.2511.17594)
+
+## Scope and limitations
 
 AutoSAGE provides:
 
@@ -15,9 +17,11 @@ AutoSAGE provides:
 - per-device and per-graph schedule caching; and
 - a reproducible benchmark, sweep, summary, and plotting harness.
 
-The scheduler is CUDA-only. The public `spmm_csr` operation also has a PyTorch CPU implementation so imports, examples, and unit tests work without a GPU.
+The scheduler and native kernels are CUDA-only. The public `spmm_csr` operation also has a PyTorch CPU implementation so imports, examples, and unit tests work without a GPU. CUDA kernels currently support float32, square CSR graphs, and a narrow SpMM/SDDMM/attention operator set; performance depends on the GPU, CUDA/PyTorch versions, sparsity pattern, and feature width. The sampled guardrail is not a formal full-graph non-regression guarantee, and the retained A800 results should not be read as end-to-end GNN training results or as performance guarantees on other systems.
 
-## Requirements
+## Quick start
+
+### Requirements
 
 The reference experiments used Ubuntu 22.04, Python 3.12, PyTorch 2.8.0+cu128, CUDA Toolkit 12.4, and an NVIDIA A800-SXM4-40GB GPU. Building the native extension requires:
 
@@ -27,7 +31,7 @@ The reference experiments used Ubuntu 22.04, Python 3.12, PyTorch 2.8.0+cu128, C
 - Ninja; and
 - a C++17/CUDA 17 toolchain.
 
-Install the Python package and optional development dependencies:
+The supplied build and reproduction entry points require Bash. Install a CUDA-enabled PyTorch build appropriate for the host from the official [PyTorch installer](https://pytorch.org/get-started/locally/), then install AutoSAGE and its optional development dependencies:
 
 ```bash
 python3 -m venv .venv
@@ -44,7 +48,7 @@ bash scripts/build.sh
 
 The build produces `build/libautosage_cuda.so`. Override `PYTHON`, `BUILD_JOBS`, or `CMAKE_CUDA_ARCHITECTURES` when needed.
 
-## Python API
+### Minimal Python example
 
 ```python
 import torch
@@ -67,7 +71,7 @@ layer = AutoSAGEConv(64, 128)
 output, schedule = layer(x, edge_index, return_info=True)
 ```
 
-## Scheduling
+## Scheduler behavior and configuration
 
 For a new `(device, graph, operation, feature width)` key, AutoSAGE:
 
@@ -77,9 +81,9 @@ For a new `(device, graph, operation, feature width)` key, AutoSAGE:
 4. accepts a native variant when its sampled latency satisfies the guardrail; and
 5. stores the decision for deterministic replay.
 
-The default guardrail is `0.95`, meaning a native candidate must be at least 5% faster on the sampled probe. This is a sampled decision rule, not a formal full-graph non-regression guarantee. `calibrate_full` is available when a one-time full-graph comparison is appropriate.
+The default guardrail is `0.95`, meaning a native candidate must be at least 5% faster on the sampled probe. `calibrate_full` is available when a one-time full-graph comparison is appropriate. The guardrail and shortlist size are the `guardrail` and `k` Python arguments; they are not environment variables.
 
-Configuration is read when each scheduler call begins:
+Scheduler configuration is read when each call begins. `AUTOSAGE_NATIVE_PATH` is consulted only when the process first attempts to load the native library.
 
 | Variable | Default | Meaning |
 | --- | ---: | --- |
@@ -91,13 +95,19 @@ Configuration is read when each scheduler call begins:
 | `AUTOSAGE_PROBE_MIN_ROWS` | `512` | Minimum sampled rows |
 | `AUTOSAGE_PROBE_ITERS` | `7` | Maximum timing iterations per candidate |
 | `AUTOSAGE_PROBE_CAP_MS` | `1.0` | Candidate-probe time budget in milliseconds |
+| `AUTOSAGE_MIN_PROBE_ROWS` | `64` | Minimum sampled rows required to accept a native candidate |
+| `AUTOSAGE_MIN_PROBE_NNZ` | `512` | Minimum sampled nonzeros required to accept a native candidate |
 | `AUTOSAGE_HUB_CTA` | `1` | Enable CTA-per-hub candidates |
 | `AUTOSAGE_VEC4` | `1` | Enable aligned vec4 kernels |
 | `AUTOSAGE_FTILE` | unset | Restrict SpMM feature tile to 64 or 128 |
 | `AUTOSAGE_WPB` | unset | Restrict hub CTA warps to 2, 4, or 8 |
 | `AUTOSAGE_HUB_T` | unset | Override the hub degree threshold |
+| `AUTOSAGE_VERBOSE` | `0` | Print one-line scheduler telemetry |
+| `AUTOSAGE_NATIVE_PATH` | unset | Explicit native-library path used by the loader |
 
-## Reproducing the evaluation
+Cache keys include the CUDA device signature, operation, graph structure summary, feature width, dtype, and whether edge weights are present. Normal cache hits must also match the tuning configuration. With `AUTOSAGE_REPLAY_ONLY=1`, a matching cached decision is replayed without probing; a cache miss falls back to the PyTorch baseline. Leave `AUTOSAGE_CACHE=1` when using replay-only mode.
+
+## Reproduction
 
 Run the complete benchmark battery on a CUDA machine:
 
@@ -105,7 +115,7 @@ Run the complete benchmark battery on a CUDA machine:
 bash scripts/reproduce.sh
 ```
 
-Set `OUTPUT_ROOT` to change the default `results/reproduced` destination. Individual examples:
+The full battery downloads Reddit and OGBN-Products on first use and can require substantial GPU memory, storage, and runtime. Set `OUTPUT_ROOT` to change the default `results/reproduced` destination. Individual examples:
 
 ```bash
 python scripts/benchmark.py \
@@ -129,6 +139,9 @@ The retained data in [artifacts/](artifacts/) are historical measurements used f
 
 ```bash
 pytest
+ruff check autosage scripts tests
+ruff format --check autosage scripts tests
+cffconvert --validate
 ```
 
 CPU tests cover imports, CSR orientation, weighted aggregation, cache behavior, scheduling configuration, SDDMM reference behavior, and the layer API. CUDA correctness tests run automatically when a CUDA-enabled PyTorch installation and the native extension are available. Performance tests remain explicit benchmark commands rather than CI assertions.
@@ -142,16 +155,25 @@ include/        Native declarations
 scripts/        Build and evaluation entry points
 tests/          CPU and CUDA correctness tests
 artifacts/      Curated historical measurements and provenance
-paper/          Published preprint PDF
+paper/          Local manuscript and publication notes
 ```
-
-## Limitations
-
-AutoSAGE currently supports float32 CUDA kernels, square CSR graphs, and a narrow SpMM/SDDMM/attention operator set. Performance depends on the GPU, CUDA/PyTorch versions, sparsity pattern, and feature width. The historical A800 results could not be rerun during this repository cleanup because the available machine has CPU-only PyTorch.
 
 ## Citation
 
-Citation metadata are provided in [CITATION.cff](CITATION.cff).
+```bibtex
+@misc{stankovic2025autosage,
+  title         = {AutoSAGE: Input-Aware CUDA Scheduling for Sparse GNN Aggregation (SpMM/SDDMM) and CSR Attention},
+  author        = {Stankovic, Aleksandar},
+  year          = {2025},
+  eprint        = {2511.17594},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  doi           = {10.48550/arXiv.2511.17594},
+  url           = {https://arxiv.org/abs/2511.17594}
+}
+```
+
+Machine-readable citation metadata are provided in [CITATION.cff](CITATION.cff).
 
 ## License
 
